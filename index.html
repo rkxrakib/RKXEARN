@@ -1,63 +1,75 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="hi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Fynora - USDT Earn</title>
+    <title>EarnFast - USDT</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     
-    <!-- Firebase -->
+    <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-database-compat.js"></script>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
-<body class="h-screen flex flex-col">
+<body class="h-screen w-full flex flex-col">
 
-    <header class="p-4 flex justify-between items-center bg-slate-900">
-        <div class="flex items-center gap-2">
-            <div class="w-8 h-8 bg-blue-500 rounded-full"></div>
-            <span class="font-bold">Fynora</span>
-        </div>
-        <div class="bg-slate-800 px-3 py-1 rounded-full text-green-400 font-bold">
-            <i class="fas fa-wallet mr-1"></i> <span class="balance-text">$0.00</span>
-        </div>
-    </header>
+    <div id="toast-container" class="fixed top-4 left-0 right-0 z-[100] flex flex-col items-center gap-2 pointer-events-none"></div>
 
-    <main id="app-content" class="flex-1 overflow-y-auto pb-24 p-4">
-        <!-- Page Sections are included here -->
-        <div id="home-page" class="page-section"> <!-- Home Content --> </div>
-        <div id="task-page" class="page-section hidden"> <!-- Task Content --> </div>
-        <div id="refer-page" class="page-section hidden"> <!-- Refer Content --> </div>
-        <div id="game-page" class="page-section hidden"> <!-- Game Content --> </div>
-        <div id="wallet-page" class="page-section hidden"> <!-- Wallet Content --> </div>
-        <div id="profile-page" class="page-section hidden"> <!-- Profile Content --> </div>
-    </main>
+    <!-- Main App -->
+    <div id="main-app" class="flex-1 flex flex-col h-full overflow-hidden">
+        <header class="flex justify-between items-center p-4 pt-6 bg-gradient-to-b from-slate-900 via-slate-900 to-transparent z-20">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 p-[2px]">
+                    <img id="user-avatar" src="https://ui-avatars.com/api/?name=User" class="w-full h-full rounded-full border-2 border-[#0f172a]">
+                </div>
+                <div>
+                    <h2 class="font-bold text-sm text-white" id="user-name">Loading...</h2>
+                </div>
+            </div>
+            <div class="flex flex-col items-end gap-1">
+                <div class="glass-card px-3 py-1 rounded-full border border-yellow-500/30 bg-yellow-500/10">
+                    <span class="font-bold text-white text-xs" id="header-balance">$0.00</span>
+                </div>
+            </div>
+        </header>
 
-    <!-- Navigation Bar -->
-    <nav class="glass-nav fixed bottom-0 w-full flex justify-around p-3">
-        <button onclick="navigateTo('home')" class="flex flex-col items-center text-slate-400">
-            <i class="fas fa-home text-xl"></i><span class="text-[10px]">Home</span>
-        </button>
-        <button onclick="navigateTo('task')" class="flex flex-col items-center text-slate-400">
-            <i class="fas fa-tasks text-xl"></i><span class="text-[10px]">Tasks</span>
-        </button>
-        <button onclick="navigateTo('game')" class="flex flex-col items-center text-slate-400">
-            <i class="fas fa-gamepad text-xl"></i><span class="text-[10px]">Games</span>
-        </button>
-        <button onclick="navigateTo('refer')" class="flex flex-col items-center text-slate-400">
-            <i class="fas fa-users text-xl"></i><span class="text-[10px]">Refer</span>
-        </button>
-        <button onclick="navigateTo('wallet')" class="flex flex-col items-center text-slate-400">
-            <i class="fas fa-wallet text-xl"></i><span class="text-[10px]">Wallet</span>
-        </button>
-    </nav>
+        <main id="content-area" class="flex-1 overflow-y-auto custom-scroll p-4 pb-28 relative">
+            <!-- Sections will be loaded here -->
+            <div id="home-page" class="page-section"></div>
+            <div id="task-page" class="page-section hidden"></div>
+            <div id="refer-page" class="page-section hidden"></div>
+            <div id="wallet-page" class="page-section hidden"></div>
+            <div id="profile-page" class="page-section hidden"></div>
+        </main>
+
+        <!-- Navigation -->
+        <nav class="glass-nav fixed bottom-0 w-full pb-safe pt-2 px-4 flex justify-between items-center z-40 h-[75px]">
+            <button onclick="showPage('home-page')" class="nav-item flex flex-col items-center gap-1 w-12 text-indigo-400" id="nav-home">
+                <i class="fas fa-home text-lg"></i><span class="text-[10px]">Home</span>
+            </button>
+            <button onclick="showPage('task-page')" class="nav-item flex flex-col items-center gap-1 w-12 text-slate-500" id="nav-task">
+                <i class="fas fa-tasks text-lg"></i><span class="text-[10px]">Task</span>
+            </button>
+            <button onclick="startImageFinderGame()" class="w-14 h-14 bg-gradient-to-tr from-indigo-500 to-purple-600 rounded-full flex items-center justify-center shadow-lg -top-5 relative border-4 border-[#0f172a]">
+                <i class="fas fa-gamepad text-white text-xl"></i>
+            </button>
+            <button onclick="showPage('wallet-page')" class="nav-item flex flex-col items-center gap-1 w-12 text-slate-500" id="nav-wallet">
+                <i class="fas fa-wallet text-lg"></i><span class="text-[10px]">Wallet</span>
+            </button>
+            <button onclick="showPage('refer-page')" class="nav-item flex flex-col items-center gap-1 w-12 text-slate-500" id="nav-refer">
+                <i class="fas fa-users text-lg"></i><span class="text-[10px]">Refer</span>
+            </button>
+        </nav>
+    </div>
+
+    <!-- Game Modals and others (Keep original IDs) -->
+    <div id="game-modal" class="fixed inset-0 z-50 bg-[#0f172a] hidden flex-col">...</div>
 
     <script src="script.js"></script>
-    <script>
-        // Load partials if needed or just keep them inside index for best performance in Telegram
-    </script>
 </body>
 </html>
