@@ -3,73 +3,183 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>EarnFast - USDT</title>
+    <title>Fynora - Play & Win USDT</title>
+    
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
     
+    <!-- Link to Separate CSS -->
+    <link rel="stylesheet" href="style.css">
+
     <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-database-compat.js"></script>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src='//libtl.com/sdk.js' data-zone='10499975' data-sdk='show_10499975'></script>
 </head>
 <body class="h-screen w-full flex flex-col">
 
+    <audio id="success-sound" src="https://assets.mixkit.co/sfx/preview/mixkit-successful-payment-making-notification-2329.mp3" preload="auto"></audio>
     <div id="toast-container" class="fixed top-4 left-0 right-0 z-[100] flex flex-col items-center gap-2 pointer-events-none"></div>
 
-    <!-- Main App -->
+    <!-- MAIN APP INTERFACE -->
     <div id="main-app" class="flex-1 flex flex-col h-full overflow-hidden">
+        
+        <!-- Header -->
         <header class="flex justify-between items-center p-4 pt-6 bg-gradient-to-b from-slate-900 via-slate-900 to-transparent z-20">
             <div class="flex items-center gap-3">
                 <div class="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 p-[2px]">
                     <img id="user-avatar" src="https://ui-avatars.com/api/?name=User" class="w-full h-full rounded-full border-2 border-[#0f172a]">
                 </div>
                 <div>
-                    <h2 class="font-bold text-sm text-white" id="user-name">Loading...</h2>
+                    <h2 class="font-bold text-sm leading-tight text-white" id="user-name">Guest</h2>
                 </div>
             </div>
             <div class="flex flex-col items-end gap-1">
-                <div class="glass-card px-3 py-1 rounded-full border border-yellow-500/30 bg-yellow-500/10">
+                <div class="glass-card px-3 py-1 rounded-full flex items-center gap-2 border border-green-500/30 bg-green-500/10">
+                    <i class="fas fa-wallet text-green-400 text-xs"></i>
                     <span class="font-bold text-white text-xs" id="header-balance">$0.00</span>
+                </div>
+                <div class="flex items-center gap-1.5 bg-black/20 px-2 py-0.5 rounded-full border border-white/5">
+                    <div class="pulse-dot"></div>
+                    <span class="text-[9px] text-slate-300 font-mono"><span id="active-users-count">...</span> Online</span>
                 </div>
             </div>
         </header>
 
+        <!-- Content Area -->
         <main id="content-area" class="flex-1 overflow-y-auto custom-scroll p-4 pb-28 relative">
-            <!-- Sections will be loaded here -->
-            <div id="home-page" class="page-section"></div>
-            <div id="task-page" class="page-section hidden"></div>
-            <div id="refer-page" class="page-section hidden"></div>
-            <div id="wallet-page" class="page-section hidden"></div>
-            <div id="profile-page" class="page-section hidden"></div>
+            
+            <!-- HOME PAGE -->
+            <div id="home-page" class="page-section page-transition">
+                <!-- FAKE PAYMENT SLIDER -->
+                <div class="glass-card rounded-xl mb-6 border border-yellow-500/10 bg-yellow-500/5 relative overflow-hidden">
+                    <div class="payment-slider-container flex items-center justify-center" id="payment-slider">
+                        <div class="payment-slide active">
+                            <span class="text-xs text-slate-300">Rahul withdrew <span class="text-green-400 font-bold">$20.00</span></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Hero Section -->
+                <div onclick="startImageFinderGame()" class="relative w-full h-52 rounded-3xl overflow-hidden mb-8 cursor-pointer shadow-xl shadow-indigo-900/30 group border border-white/5">
+                    <div class="absolute inset-0 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 transition duration-500 group-hover:scale-105"></div>
+                    <div class="absolute inset-0 p-6 flex flex-col justify-center items-start z-10">
+                        <span class="bg-white/20 backdrop-blur-md text-white text-[10px] font-bold px-2 py-1 rounded mb-2">POPULAR</span>
+                        <h2 class="text-3xl font-extrabold text-white leading-tight mb-1">Image Finder</h2>
+                        <button class="bg-white text-indigo-600 text-xs font-bold px-5 py-2.5 rounded-full shadow-lg">PLAY NOW</button>
+                    </div>
+                </div>
+
+                <!-- More Games -->
+                <div class="flex justify-between items-end mb-4 px-1">
+                    <h3 class="font-bold text-lg text-white flex items-center gap-2"><i class="fas fa-shapes text-pink-400"></i> More Games</h3>
+                </div>
+                <div id="games-list" class="space-y-3">
+                    <div class="glass-card p-3 rounded-xl flex items-center gap-4" onclick="startTicTacToe()">
+                        <div class="w-14 h-14 bg-gradient-to-br from-green-500 to-teal-600 rounded-xl flex items-center justify-center text-2xl">❌</div>
+                        <div class="flex-1">
+                            <h4 class="font-bold text-sm text-white">Tic Tac Toe</h4>
+                            <p class="text-[10px] text-slate-400">Beat AI & Earn USDT</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TASK PAGE (New Section) -->
+            <div id="task-page" class="page-section page-transition hidden">
+                <h2 class="text-xl font-bold mb-4 px-1">Daily Tasks</h2>
+                <div id="task-list-container" class="space-y-3">
+                    <!-- Tasks will be injected here -->
+                </div>
+            </div>
+
+            <!-- PROFILE PAGE -->
+            <div id="profile-page" class="page-section page-transition hidden">
+                <h2 class="text-xl font-bold mb-6 px-1">My Profile</h2>
+                <div class="glass-card rounded-2xl p-6 text-center mb-6">
+                    <img id="profile-avatar" src="" class="w-20 h-20 mx-auto rounded-full bg-slate-900 mb-3 border-2 border-indigo-500">
+                    <h3 class="text-xl font-bold text-white" id="profile-name">User</h3>
+                    <div class="mt-6 bg-slate-800/50 rounded-xl p-4 border border-slate-700">
+                        <p class="text-slate-400 text-[10px] uppercase">Lifetime Earnings</p>
+                        <p class="text-2xl font-bold text-green-400">$<span id="profile-total-earned">0.00</span></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- WALLET PAGE -->
+            <div id="wallet-page" class="page-section page-transition hidden">
+                <h2 class="text-xl font-bold mb-4 px-1">Wallet</h2>
+                <div class="bg-gradient-to-r from-slate-800 to-slate-900 rounded-2xl p-6 mb-6 text-center border border-slate-700">
+                    <p class="text-slate-400 text-xs mb-1 uppercase">Current Balance</p>
+                    <h1 class="text-5xl font-extrabold text-white mb-3 tracking-tight">$<span id="wallet-balance">0.00</span></h1>
+                    <div class="inline-block bg-slate-800 border border-white/10 px-4 py-1.5 rounded-full text-xs text-slate-300">
+                        Min. Withdraw: <span class="text-green-400 font-bold">$2.00 USDT</span>
+                    </div>
+                </div>
+                <!-- Withdraw Form -->
+                <div class="glass-card rounded-2xl p-5">
+                    <h3 class="font-bold text-sm text-indigo-400 mb-4 uppercase">Withdraw USDT (TRC20)</h3>
+                    <form onsubmit="handleWithdraw(event)" class="space-y-4">
+                        <input type="text" id="withdraw-details" required placeholder="USDT TRC20 Address" class="w-full bg-[#0f172a] border border-slate-700 rounded-xl p-3.5 text-sm text-white">
+                        <input type="number" id="withdraw-amount" step="0.01" required placeholder="Amount ($)" class="w-full bg-[#0f172a] border border-slate-700 rounded-xl p-3.5 text-sm text-white">
+                        <button type="submit" class="w-full bg-indigo-600 text-white font-bold py-3.5 rounded-xl shadow-lg">Redeem Now</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- REFER PAGE -->
+            <div id="refer-page" class="page-section page-transition hidden">
+                <div class="flex flex-col items-center text-center mt-2">
+                    <div class="w-24 h-24 bg-gradient-to-tr from-indigo-500 to-purple-500 rounded-3xl flex items-center justify-center mb-6 rotate-3">
+                        <i class="fas fa-gift text-4xl text-white"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold text-white mb-2">Invite & Earn</h2>
+                    <p class="text-slate-400 text-sm mb-6">Earn <span class="text-green-400 font-bold" id="refer-bonus-disp">$0.50</span> per friend!</p>
+                    <div class="w-full glass-card p-5 rounded-xl border border-dashed border-slate-600 mb-6">
+                        <p class="text-[10px] text-slate-400 uppercase mb-2">Your Invite Code</p>
+                        <div class="flex items-center justify-center gap-4 bg-black/20 p-2 rounded-lg">
+                            <span id="my-ref-code" class="text-2xl font-mono font-bold text-white tracking-widest">...</span>
+                            <button onclick="copyRefCode()" class="w-8 h-8 bg-slate-700 rounded-full flex items-center justify-center"><i class="fas fa-copy text-xs"></i></button>
+                        </div>
+                    </div>
+                    <button onclick="shareOnTelegram()" class="w-full bg-[#229ED9] text-white font-bold py-3.5 rounded-xl">Share on Telegram</button>
+                </div>
+            </div>
+
         </main>
 
-        <!-- Navigation -->
-        <nav class="glass-nav fixed bottom-0 w-full pb-safe pt-2 px-4 flex justify-between items-center z-40 h-[75px]">
-            <button onclick="showPage('home-page')" class="nav-item flex flex-col items-center gap-1 w-12 text-indigo-400" id="nav-home">
-                <i class="fas fa-home text-lg"></i><span class="text-[10px]">Home</span>
+        <!-- Bottom Navigation -->
+        <nav class="glass-nav fixed bottom-0 w-full pb-safe pt-2 px-6 flex justify-between items-center z-40 h-[75px]">
+            <button onclick="showPage('home-page')" class="nav-item active flex flex-col items-center gap-1 w-12 text-indigo-400" id="nav-home">
+                <i class="fas fa-home text-lg"></i><span class="text-[9px]">Home</span>
             </button>
             <button onclick="showPage('task-page')" class="nav-item flex flex-col items-center gap-1 w-12 text-slate-500" id="nav-task">
-                <i class="fas fa-tasks text-lg"></i><span class="text-[10px]">Task</span>
+                <i class="fas fa-tasks text-lg"></i><span class="text-[9px]">Task</span>
             </button>
-            <button onclick="startImageFinderGame()" class="w-14 h-14 bg-gradient-to-tr from-indigo-500 to-purple-600 rounded-full flex items-center justify-center shadow-lg -top-5 relative border-4 border-[#0f172a]">
-                <i class="fas fa-gamepad text-white text-xl"></i>
-            </button>
+            <div class="relative -top-6">
+                <button onclick="startImageFinderGame()" class="w-16 h-16 bg-gradient-to-tr from-indigo-500 to-purple-600 rounded-full flex items-center justify-center shadow-lg border-4 border-[#0f172a]"><i class="fas fa-gamepad text-white text-2xl"></i></button>
+            </div>
             <button onclick="showPage('wallet-page')" class="nav-item flex flex-col items-center gap-1 w-12 text-slate-500" id="nav-wallet">
-                <i class="fas fa-wallet text-lg"></i><span class="text-[10px]">Wallet</span>
+                <i class="fas fa-wallet text-lg"></i><span class="text-[9px]">Wallet</span>
             </button>
-            <button onclick="showPage('refer-page')" class="nav-item flex flex-col items-center gap-1 w-12 text-slate-500" id="nav-refer">
-                <i class="fas fa-users text-lg"></i><span class="text-[10px]">Refer</span>
+            <button onclick="showPage('profile-page')" class="nav-item flex flex-col items-center gap-1 w-12 text-slate-500" id="nav-profile">
+                <i class="fas fa-user text-lg"></i><span class="text-[9px]">Profile</span>
             </button>
         </nav>
     </div>
 
-    <!-- Game Modals and others (Keep original IDs) -->
+    <!-- Modals (Image Finder, TTT, Math, Success) -->
     <div id="game-modal" class="fixed inset-0 z-50 bg-[#0f172a] hidden flex-col">...</div>
+    <div id="ttt-modal" class="fixed inset-0 z-50 bg-[#0f172a] hidden flex-col items-center justify-center">...</div>
+    <div id="math-modal" class="fixed inset-0 z-50 bg-[#0f172a] hidden flex-col items-center justify-center">...</div>
+    <div id="payment-success-modal" class="fixed inset-0 z-[200] bg-black/90 hidden flex-col items-center justify-center p-6">...</div>
 
+    <!-- Script File -->
     <script src="script.js"></script>
 </body>
 </html>
